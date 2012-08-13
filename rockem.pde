@@ -18,7 +18,7 @@ void draw() {
   background(255);
   
   translate(width/2, height/2, 0);
-  rotateX(radians(180));
+  rotateY(radians(180));
 
   IntVector userList = new IntVector();
   kinect.getUsers(userList);
@@ -30,21 +30,19 @@ void draw() {
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, position);
 
       PMatrix3D orientation = new PMatrix3D();
-      float confidence = kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
+      kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
       
-      println(confidence);
       drawSkeleton(userId);
       drawAxis(position, orientation);
 
       PMatrix3D leftHitbox = new PMatrix3D();
       PMatrix3D rightHitbox = new PMatrix3D();
 
-
       float leftArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
       float rightArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
   
-      drawHitbox(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftArmLength);
-      drawHitbox(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightArmLength);
+      drawHitbox(userId, orientation, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftArmLength);
+      drawHitbox(userId, orientation, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightArmLength);
     
       // handleHitbox(userId, leftHitbox, SimpleOpenNI.SKEL_LEFT_HAND)
       // handleHitbox(userId, rightHitbox, SimpleOpenNI.SKEL_RIGHT_HAND)
@@ -52,7 +50,7 @@ void draw() {
   }
 }
 
-void drawHitbox(int userId, int jointId, float armLength) {
+void drawHitbox(int userId, PMatrix3D orientation, int jointId, float armLength) {
   PVector jointPos = new PVector();
   float  confidence;
 
@@ -60,8 +58,10 @@ void drawHitbox(int userId, int jointId, float armLength) {
 
   if(confidence > 0.5){
     pushMatrix();
+    applyMatrix(orientation);
+    rotate(radians(1));
     translate(jointPos.x, jointPos.y, jointPos.z - armLength);
-    box(200, 200, 100);
+    box(200, 800, 200);
     popMatrix();
   } 
 }
