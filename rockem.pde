@@ -16,9 +16,9 @@ void setup() {
 void draw() {
   kinect.update();
   background(255);
-  
+
   translate(width/2, height/2, 0);
-  rotateY(radians(180));
+  rotateX(radians(180));
 
   IntVector userList = new IntVector();
   kinect.getUsers(userList);
@@ -31,7 +31,7 @@ void draw() {
 
       PMatrix3D orientation = new PMatrix3D();
       kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
-      
+
       drawSkeleton(userId);
       drawAxis(position, orientation);
 
@@ -40,10 +40,10 @@ void draw() {
 
       float leftArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
       float rightArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
-  
+
       drawHitbox(userId, orientation, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftArmLength);
       drawHitbox(userId, orientation, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightArmLength);
-    
+
       // handleHitbox(userId, leftHitbox, SimpleOpenNI.SKEL_LEFT_HAND)
       // handleHitbox(userId, rightHitbox, SimpleOpenNI.SKEL_RIGHT_HAND)
     }
@@ -58,12 +58,11 @@ void drawHitbox(int userId, PMatrix3D orientation, int jointId, float armLength)
 
   if(confidence > 0.5){
     pushMatrix();
-    applyMatrix(orientation);
-    rotate(radians(1));
     translate(jointPos.x, jointPos.y, jointPos.z - armLength);
+    fill(255, 0, 0, 40);
     box(200, 800, 200);
     popMatrix();
-  } 
+  }
 }
 
 float calculateArmLength(int userId, int shoulder, int elbow, int hand) {
@@ -125,7 +124,9 @@ void drawAxis(PVector position, PMatrix3D orientation) {
   translate(position.x, position.y, position.z);
   // adopt the TORSO's orientation
   // to be our coordinate system
+
   applyMatrix(orientation);
+
   // draw x-axis in red
   stroke(255, 0, 0);
   strokeWeight(3);
@@ -147,11 +148,11 @@ void onNewUser(int userId) {
 }
 
 void onEndCalibration(int userId, boolean successful) {
-  if (successful) { 
+  if (successful) {
     println("  User calibrated !!!");
     kinect.startTrackingSkeleton(userId);
-  } 
-  else { 
+  }
+  else {
     println("  Failed to calibrate user !!!");
     kinect.startPoseDetection("Psi", userId);
   }
@@ -159,6 +160,6 @@ void onEndCalibration(int userId, boolean successful) {
 
 void onStartPose(String pose, int userId) {
   println("Started pose for user");
-  kinect.stopPoseDetection(userId); 
+  kinect.stopPoseDetection(userId);
   kinect.requestCalibrationSkeleton(userId, true);
 }
