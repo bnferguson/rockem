@@ -27,44 +27,35 @@ void draw() {
     int userId = userList.get(0);
 
     if ( kinect.isTrackingSkeleton(userId)) {
-
-
       PVector position = new PVector();
+ 
+      PMatrix3D orientation = new PMatrix3D();
+
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, position);
 
-      PVector headPosition = new PVector();
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, headPosition);
-
-      handleBodyPosition(headPosition);
-
-      PMatrix3D orientation = new PMatrix3D();
       kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
+
+      handleBodyPosition(userId);
+      handlePunches(userId);
 
       drawSkeleton(userId);
       drawAxis(position, orientation);
-
-      PMatrix3D leftHitbox = new PMatrix3D();
-      PMatrix3D rightHitbox = new PMatrix3D();
-
-      float leftArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
-      float rightArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
-
-      drawHitbox(userId, orientation, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftArmLength);
-      drawHitbox(userId, orientation, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightArmLength);
-
-      // handleHitbox(userId, leftHitbox, SimpleOpenNI.SKEL_LEFT_HAND);
-      // handleHitbox(userId, rightHitbox, SimpleOpenNI.SKEL_RIGHT_HAND);
     }
   }
+
+  println("------------------End of Frame------------------------");
 }
 
-void handleBodyPosition(PVector position) {
+void handleBodyPosition(int userId) {
+  PVector position = new PVector();
+  int deadzone = 200;
+  boolean moving = false;
+
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, position);
+  
   if (centerPoint == null) {
     centerPoint = position;
   }
-
-  int deadzone = 200;
-  boolean moving = false;
 
   if (position.x < centerPoint.x - deadzone){
     println("LEFT!");
@@ -91,21 +82,35 @@ void handleBodyPosition(PVector position) {
   }
 }
 
+void handlePunches(int userId) {
+  float leftArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, SimpleOpenNI.SKEL_LEFT_ELBOW, SimpleOpenNI.SKEL_LEFT_HAND);
+  float rightArmLength = calculateArmLength(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, SimpleOpenNI.SKEL_RIGHT_ELBOW, SimpleOpenNI.SKEL_RIGHT_HAND);
 
-void drawHitbox(int userId, PMatrix3D orientation, int jointId, float armLength) {
-  PVector jointPos = new PVector();
-  float  confidence;
+  PVector leftShoulder = new PVector();
+  PVector rightShoulder = new PVector();
 
-  confidence = kinect.getJointPositionSkeleton(userId, jointId, jointPos);
+  PVector leftHand = new PVector();
+  PVector rightHand = new PVector();
 
-  if(confidence > 0.5){
-    pushMatrix();
-    translate(jointPos.x, jointPos.y, jointPos.z - armLength);
-    fill(255, 0, 0, 40);
-    box(200, 800, 200);
-    popMatrix();
+
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftShoulder);
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightShoulder);
+
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_LEFT_HAND, leftHand);
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_RIGHT_HAND, rightHand);
+
+  PVector leftPunchPoint = new PVector(leftShoulder.x, leftShoulder.y, leftShoulder.z - (leftArmLength - leftArmLength/4));
+  PVector rightPunchPoint = new PVector(rightShoulder.x, rightShoulder.y, rightShoulder.z - (rightArmLength - rightArmLength/4));
+
+  if (rightHand.z < rightPunchPoint.z) {
+    println("RIGHT PUNCH!!!!");
+  }
+
+  if (leftHand.z < leftPunchPoint.z) {
+    println("LEFT PUNCH!!!!");
   }
 }
+
 
 float calculateArmLength(int userId, int shoulder, int elbow, int hand) {
   float length = 0.0;
