@@ -1,6 +1,7 @@
 import processing.opengl.*;
 import SimpleOpenNI.*;
 SimpleOpenNI  kinect;
+PVector centerPoint;
 
 void setup() {
   size(1028, 768, OPENGL);
@@ -26,8 +27,15 @@ void draw() {
     int userId = userList.get(0);
 
     if ( kinect.isTrackingSkeleton(userId)) {
+
+
       PVector position = new PVector();
       kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, position);
+
+      PVector headPosition = new PVector();
+      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, headPosition);
+
+      handleBodyPosition(headPosition);
 
       PMatrix3D orientation = new PMatrix3D();
       kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
@@ -44,11 +52,45 @@ void draw() {
       drawHitbox(userId, orientation, SimpleOpenNI.SKEL_LEFT_SHOULDER, leftArmLength);
       drawHitbox(userId, orientation, SimpleOpenNI.SKEL_RIGHT_SHOULDER, rightArmLength);
 
-      // handleHitbox(userId, leftHitbox, SimpleOpenNI.SKEL_LEFT_HAND)
-      // handleHitbox(userId, rightHitbox, SimpleOpenNI.SKEL_RIGHT_HAND)
+      // handleHitbox(userId, leftHitbox, SimpleOpenNI.SKEL_LEFT_HAND);
+      // handleHitbox(userId, rightHitbox, SimpleOpenNI.SKEL_RIGHT_HAND);
     }
   }
 }
+
+void handleBodyPosition(PVector position) {
+  if (centerPoint == null) {
+    centerPoint = position;
+  }
+
+  int deadzone = 200;
+  boolean moving = false;
+
+  if (position.x < centerPoint.x - deadzone){
+    println("LEFT!");
+    moving = true;
+  }
+
+  if (position.x > centerPoint.x + deadzone){
+    println("RIGHT!");
+    moving = true;
+  }
+
+  if (position.z < centerPoint.z - deadzone){
+    println("FORWARD!");
+    moving = true;
+  }
+
+  if (position.z > centerPoint.z + deadzone){
+    println("BACK!");
+    moving = true;
+  }
+
+  if (!moving) {
+    println("CENTER!");
+  }
+}
+
 
 void drawHitbox(int userId, PMatrix3D orientation, int jointId, float armLength) {
   PVector jointPos = new PVector();
