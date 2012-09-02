@@ -23,8 +23,6 @@ void draw() {
 
   translate(width/2, height/2, 0);
   rotateX(radians(180));
-
-  rockem = new RockemProtocol();
   
   IntVector userList = new IntVector();
   kinect.getUsers(userList);
@@ -35,12 +33,14 @@ void draw() {
       drawUser(userId);
     } 
   }
-  println(rockem.to_s());
 }
 
 void processUserAndSendToArduino(int userId) {
+  rockem = new RockemProtocol();
   handleBodyPosition(userId);
   handlePunches(userId);
+
+  println(rockem.to_s());
 }
 
 void drawUser(int userId) {
