@@ -1,72 +1,46 @@
 import processing.opengl.*;
 import SimpleOpenNI.*;
+
 SimpleOpenNI  kinect;
 PVector centerPoint;
 RockemProtocol rockem;
 
 class RockemProtocol {  
-  boolean punchLeft, punchRight, moveForward, moveBackward, moveLeft, moveRight;
+  int punchLeft, punchRight, moveForwardBack, moveLeftRight;
 
   RockemProtocol() {
-    punchRight = false;
-    punchLeft = false;
-    moveForward = false;
-    moveBackward = false;
-    moveLeft = false;
-    moveRight = false;
+    punchRight = 0;
+    punchLeft = 0;
+    moveForwardBack = 0;
+    moveLeftRight = 0;
   }
 
-  public void setPunchLeft(boolean value) {
-    punchLeft = value;
+  public void punchLeft() {
+    punchLeft = 1;
   }
 
-  public void setPunchRight(boolean value) {
-    punchRight = value;
+  public void punchRight() {
+    punchRight = 1;
   }
 
-  public void setMoveForward(boolean value) {
-    moveForward = value;
+  public void moveForward() {
+    moveForwardBack = 1;
   }
 
-  public void setMoveBackward(boolean value) {
-    moveBackward = value;
+  public void moveBackward() {
+    moveForwardBack = -1;
   }
 
-  public void setMoveLeft(boolean value) {
-    moveLeft = value;
+  public void moveLeft() {
+    moveLeftRight = 1;
   }
 
-  public void setMoveRight(boolean value) {
-    moveRight = value;
+  public void moveRight() {
+    moveLeftRight = -1;
   }
 
   public String to_s() {
-    int leftRightValue = 0;
-    int forwardBackwardValue = 0;
-    int punchLeftValue = 0;
-    int punchRightValue = 0;
-
-    if (punchLeft) {
-      punchLeftValue = 1;
-    }
-
-    if (punchRight) {
-      punchRightValue = 1;
-    }
-
-    if (moveForward) {
-      forwardBackwardValue = 1;
-    } else if (moveBackward) {
-      forwardBackwardValue = -1;
-    } 
-
-    if (moveRight) {
-      leftRightValue = 1;
-    } else if (moveLeft) {
-      leftRightValue = -1;
-    } 
-
-    return "" + leftRightValue + "," + forwardBackwardValue + "," + punchLeftValue + "," + punchRightValue;    
+    return "" + moveLeftRight + "," + moveForwardBack + "," + punchLeft + "," + punchRight;    
   }
 }
 
@@ -122,7 +96,6 @@ void draw() {
 void handleBodyPosition(int userId) {
   PVector position = new PVector();
   int deadzone = 200;
-  boolean moving = false;
 
   kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, position);
   
@@ -131,23 +104,19 @@ void handleBodyPosition(int userId) {
   }
 
   if (position.x < centerPoint.x - deadzone){
-    rockem.setMoveLeft(true);
-    moving = true;
+    rockem.moveLeft();
   }
 
   if (position.x > centerPoint.x + deadzone){
-    rockem.setMoveRight(true);
-    moving = true;
+    rockem.moveRight();
   }
 
   if (position.z < centerPoint.z - deadzone){
-    rockem.setMoveForward(true);
-    moving = true;
+    rockem.moveForward();
   }
 
   if (position.z > centerPoint.z + deadzone){
-    rockem.setMoveBackward(true);
-    moving = true;
+    rockem.moveBackward();
   }
 }
 
@@ -172,11 +141,11 @@ void handlePunches(int userId) {
   PVector rightPunchPoint = new PVector(rightShoulder.x, rightShoulder.y, rightShoulder.z - (rightArmLength - rightArmLength/4));
 
   if (rightHand.z < rightPunchPoint.z) {
-    rockem.setPunchRight(true);
+    rockem.punchRight();
   }
 
   if (leftHand.z < leftPunchPoint.z) {
-    rockem.setPunchLeft(true);
+    rockem.punchLeft();
   }
 }
 
