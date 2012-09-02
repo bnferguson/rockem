@@ -28,31 +28,29 @@ void draw() {
   
   IntVector userList = new IntVector();
   kinect.getUsers(userList);
-  if (userList.size() > 0) {
-    int userId = userList.get(0);
-    
-
+  for (int i=0; i < userList.size(); i++) { 
+    int userId = userList.get(i);
     if ( kinect.isTrackingSkeleton(userId)) {
-      
-
-      PVector position = new PVector();
- 
-      PMatrix3D orientation = new PMatrix3D();
-
-      kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, position);
-
-      kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
-
-      handleBodyPosition(userId);
-      handlePunches(userId);
-
-      drawSkeleton(userId);
-      drawAxis(position, orientation);
-    }
+      processUserAndSendToArduino(userId);
+      drawUser(userId);
+    } 
   }
-
-
   println(rockem.to_s());
+}
+
+void processUserAndSendToArduino(int userId) {
+  handleBodyPosition(userId);
+  handlePunches(userId);
+}
+
+void drawUser(int userId) {
+  PVector position = new PVector();
+  PMatrix3D orientation = new PMatrix3D();
+
+  kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_TORSO, position);
+  kinect.getJointOrientationSkeleton(userId, SimpleOpenNI.SKEL_TORSO, orientation);
+  drawSkeleton(userId);
+  drawAxis(position, orientation);
 }
 
 void handleBodyPosition(int userId) {
