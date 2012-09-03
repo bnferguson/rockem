@@ -36,11 +36,11 @@ void draw() {
 }
 
 void processUserAndSendToArduino(int userId) {
-  rockem = new RockemProtocol();
+  rockem = new RockemProtocol(userId);
   handleBodyPosition(userId);
   handlePunches(userId);
 
-  println(rockem.to_s());
+  println(rockem);
 }
 
 void drawUser(int userId) {

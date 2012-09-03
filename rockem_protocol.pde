@@ -1,7 +1,12 @@
 class RockemProtocol {  
-  int punchLeft, punchRight, moveForwardBack, moveLeftRight;
+  int punchLeft, punchRight, moveForwardBack, moveLeftRight, userId;
 
-  RockemProtocol() {
+  RockemProtocol(int _userId) {
+    userId = _userId;
+    reset();
+  }
+
+  public void reset() {
     punchRight = 0;
     punchLeft = 0;
     moveForwardBack = 0;
@@ -32,7 +37,8 @@ class RockemProtocol {
     moveLeftRight = -1;
   }
 
-  public String to_s() {
-    return "" + moveLeftRight + "," + moveForwardBack + "," + punchLeft + "," + punchRight;    
+  public String toString() {
+    String output = userId + "," + moveLeftRight + "," + moveForwardBack + "," + punchLeft + "," + punchRight;
+    return output;
   }
 }
