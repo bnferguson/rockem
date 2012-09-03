@@ -38,7 +38,7 @@ class RockemProtocol {
   }
 
   public String toString() {
-    String output = userId + "," + moveLeftRight + "," + moveForwardBack + "," + punchLeft + "," + punchRight;
+    String output = userId + "," + moveLeftRight + "," + moveForwardBack + "," + punchLeft + "," + punchRight + "\n";
     return output;
   }
 }
