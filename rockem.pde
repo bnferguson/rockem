@@ -1,10 +1,12 @@
 import processing.opengl.*;
+import processing.serial.*;
 import SimpleOpenNI.*;
 
 SimpleOpenNI  kinect;
 PVector centerPoint;
 RockemProtocol rockem;
 
+Serial playerOnePort; 
 
 void setup() {
   size(1028, 768, OPENGL);
@@ -13,6 +15,9 @@ void setup() {
   kinect.enableDepth();
   kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   kinect.setMirror(true);
+
+  println(Serial.list()); 
+  playerOnePort = new Serial(this, Serial.list()[4], 9600); 
 
   fill(255, 0, 0);
 }
@@ -40,6 +45,7 @@ void processUserAndSendToArduino(int userId) {
   handleBodyPosition(userId);
   handlePunches(userId);
 
+  playerOnePort.write(rockem.toString());
   println(rockem);
 }
 
