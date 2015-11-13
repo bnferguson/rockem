@@ -6,7 +6,9 @@ SimpleOpenNI  kinect;
 PVector centerPoint;
 RockemProtocol rockem;
 
-Serial playerOnePort; 
+# Testing things
+
+Serial playerOnePort;
 
 void setup() {
   size(1028, 768, OPENGL);
@@ -16,8 +18,8 @@ void setup() {
   kinect.enableUser(SimpleOpenNI.SKEL_PROFILE_ALL);
   kinect.setMirror(true);
 
-  println(Serial.list()); 
-  playerOnePort = new Serial(this, Serial.list()[4], 9600); 
+  println(Serial.list());
+  playerOnePort = new Serial(this, Serial.list()[4], 9600);
 
   fill(255, 0, 0);
 }
@@ -28,15 +30,15 @@ void draw() {
 
   translate(width/2, height/2, 0);
   rotateX(radians(180));
-  
+
   IntVector userList = new IntVector();
   kinect.getUsers(userList);
-  for (int i=0; i < userList.size(); i++) { 
+  for (int i=0; i < userList.size(); i++) {
     int userId = userList.get(i);
     if ( kinect.isTrackingSkeleton(userId)) {
       processUserAndSendToArduino(userId);
       drawUser(userId);
-    } 
+    }
   }
 }
 
@@ -64,7 +66,7 @@ void handleBodyPosition(int userId) {
   int deadzone = 200;
 
   kinect.getJointPositionSkeleton(userId, SimpleOpenNI.SKEL_HEAD, position);
-  
+
   if (centerPoint == null) {
     centerPoint = position;
   }
